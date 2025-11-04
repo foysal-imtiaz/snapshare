@@ -53,14 +53,22 @@ export async function getUserByClerkId(clerkId: string) {
 }
 
 export async function getDbUserId() {
-  const {userId:clerkId} = await auth();
-  if(!clerkId) return null;
-  
-  const user = await getUserByClerkId(clerkId)
+  const { userId: clerkId } = await auth();
+  if (!clerkId) return null;
 
-  if(!user) throw new Error("User not found")
+  // Try to find the user in our DB first
+  let user = await getUserByClerkId(clerkId);
 
-    return user.id
+  // If not found, attempt to sync from Clerk (first sign-in/sign-up case)
+  if (!user) {
+    await syncUser();
+    user = await getUserByClerkId(clerkId);
+  }
+
+  // If still not found, return null instead of throwing to avoid server crashes
+  if (!user) return null;
+
+  return user.id;
 }
 
 export async function getRandomUsers() {
