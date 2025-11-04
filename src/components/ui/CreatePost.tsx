@@ -50,7 +50,7 @@ function CreatePost() {
             </Avatar>
             <Textarea
               placeholder="What's on your mind?"
-              className="min-h-[100px] resize-none border-none focus-visible:ring-0 p-0 text-base"
+              className="mt-[11px] min-h-[100px] resize-none border-none focus-visible:ring-0 p-0 text-base"
               value={content}
               onChange={(e) => setContent(e.target.value)}
               disabled={isPosting}
@@ -80,12 +80,12 @@ function CreatePost() {
                 onClick={() => setShowImageUpload(!showImageUpload)}
                 disabled={isPosting}
               >
-                <ImageIcon className="size-4 mr-2" />
+                <ImageIcon className="size-4" />
                 Photo
               </Button>
             </div>
             <Button
-              className="flex items-center"
+              className="flex items-center pr-6"
               onClick={handleSubmit}
               disabled={(!content.trim() && !imageUrl) || isPosting}
             >
@@ -96,7 +96,7 @@ function CreatePost() {
                 </>
               ) : (
                 <>
-                  <SendIcon className="size-4 mr-2" />
+                  <SendIcon className="size-4" />
                   Post
                 </>
               )}

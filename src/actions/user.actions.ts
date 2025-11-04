@@ -17,15 +17,37 @@ export async function syncUser() {
       },
     });
 
-    if (existingUser) return existingUser;
+    const desiredName = `${user.firstName || ""} ${user.lastName || ""}`.trim();
+    const desiredImage = user.imageUrl;
+    const desiredUsername = user.username ?? user.emailAddresses[0].emailAddress.split("@")[0];
+    const desiredEmail = user.emailAddresses[0].emailAddress;
+
+    if (existingUser) {
+      const nameChanged = !!desiredName && desiredName !== (existingUser.name ?? "");
+      const imageChanged = !!desiredImage && desiredImage !== (existingUser.image ?? "");
+      const needsUpdate = nameChanged || imageChanged;
+
+      if (needsUpdate) {
+        const updated = await prisma.user.update({
+          where: { clerkId: userId },
+          data: {
+            ...(nameChanged ? { name: desiredName } : {}),
+            ...(imageChanged ? { image: desiredImage } : {}),
+          },
+        });
+        return updated;
+      }
+
+      return existingUser;
+    }
 
     const dbUser = await prisma.user.create({
       data: {
         clerkId: userId,
-        name: `${user.firstName || ""} ${user.lastName || ""}`,
-        username: user.username ?? user.emailAddresses[0].emailAddress.split("@")[0],
-        email: user.emailAddresses[0].emailAddress,
-        image: user.imageUrl,
+        name: desiredName,
+        username: desiredUsername,
+        email: desiredEmail,
+        image: desiredImage,
       },
     });
 

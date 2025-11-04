@@ -6,26 +6,29 @@ import Link from "next/link";
 import { Avatar, AvatarImage } from "./avatar";
 import { Separator } from "./separator";
 import { LinkIcon, MapPinIcon } from "lucide-react";
-import { getUserByClerkId } from "@/actions/user.actions";
+import { getUserByClerkId, syncUser } from "@/actions/user.actions";
+import ClientUserAvatar from "./ClientUserAvatar";
 
 
 async function Sidebar() {
     const authUser = await currentUser();
     if(!authUser) return <UnAuthenticatedSidebar />
 
-    const user = await getUserByClerkId(authUser.id)
+    let user = await getUserByClerkId(authUser.id)
+    if(!user){
+      await syncUser()
+      user = await getUserByClerkId(authUser.id)
+    }
     if(!user) return null
 
     return <div className="sticky top-20"> <Card>
         <CardContent className="pt-6">
           <div className="flex flex-col items-center text-center">
             <Link
-              href={`/profile/${user.username}`}
+              href={`/profile/${encodeURIComponent(user.username)}`}
               className="flex flex-col items-center justify-center"
             >
-              <Avatar className="w-20 h-20 border-2 ">
-                <AvatarImage src={user.image || "/avatar.png"} />
-              </Avatar>
+              <ClientUserAvatar className="w-20 h-20 border-2 " fallbackSrc={user.image || "/avatar.png"} />
 
               <div className="mt-4 space-y-1">
                 <h3 className="font-semibold">{user.name}</h3>
